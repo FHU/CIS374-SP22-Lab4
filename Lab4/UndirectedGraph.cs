@@ -154,6 +154,7 @@ namespace Lab4
 
 
 		// TODO
+		// Done
 		/**
          * <summary> Returns the number of connecxted components in the graph .</summary>
          */
@@ -163,25 +164,51 @@ namespace Lab4
 			{
 				int connectedComponents = 0;
 
+
 				// for all the nodes
 				//     if node is white
 				//        connectedComponents++
 				//        explore the neighbors
-				//        
-
-
-
+				//
+				foreach(var node in Nodes)
+                {
+					node.Color = Color.White;
+                }
+				foreach (var node in Nodes)
+                {
+					if (node.Color == Color.White)
+                    {
+						connectedComponents++;
+						Isolate(node);
+                    }
+					node.Color = Color.Black;
+                }
 				return connectedComponents;
 			}
 		}
 
-		// TODO
-		/**
+        private void Isolate(Node node)
+        {
+			node.Color = Color.Gray;
+            foreach(var neighbor in node.Neighbors)
+            {
+				if(neighbor.Color == Color.White)
+                {
+					Isolate(neighbor);
+                }
+            }
+			node.Color = Color.Black;
+
+        }
+
+        // TODO
+        // Done I think
+        /**
 		 *  <summary> Returns a predessor dictionary with the DFS paths starting DFS 
 		 *  at the given starting node</summary>
 		 */
 
-		public Dictionary<Node, Node> DFS(Node startingNode)
+        public Dictionary<Node, Node> DFS(Node startingNode)
 		{
 			Dictionary<Node, Node> predecessorDictionary = new Dictionary<Node, Node>();
 
@@ -190,12 +217,16 @@ namespace Lab4
 			//    color[v] = white
 			//    
 			// dfsVisit(startingNode)
-			
-
+			foreach( var node in Nodes)
+            {
+				node.Color = Color.White;
+            }
+			DFSVisit(startingNode, predecessorDictionary);
 			return predecessorDictionary;
 		}
 
 		// TODO
+		// Done I think
 		private void DFSVisit(Node node, Dictionary<Node, Node> pred)
 		{
 			// color[node] = gray
@@ -203,20 +234,34 @@ namespace Lab4
 			//    if color[v] = white then
 			//        pred[v] = node
 			//        dfsVisit(v, pred)
-            // color[node] = black
+			// color[node] = black
+			node.Color = Color.Gray;
+			foreach( Node neighbor in node.Neighbors)
+            {
+				if (neighbor.Color == Color.White)
+                {
+					//Console.Write(node.Name);
+					//Console.Write(" is trying to be added with ");
+					//Console.WriteLine(neighbor.Name);
+					pred.Add(neighbor, node);
+                    DFSVisit(neighbor, pred);
+                }
+				node.Color = Color.Black;
+            }
 
 
 		}
 
 
 		// TODO
+		//Done I think
 		/**
 		 *  <summary> Returns a predessor dictionary with the BFS paths starting BFS 
 		 *  at the given starting node</summary>
 		 */
 		public Dictionary<Node, (Node pred, int dist)> BFS(Node startingNode)
 		{
-			var predecessorDictionary = new Dictionary<Node, (Node pred, int dist)>();
+			var predecessorDictionary = new Dictionary<Node, (Node? pred, int dist)>();
 			Queue<Node> queue = new Queue<Node>();
 
 			// init
@@ -241,8 +286,28 @@ namespace Lab4
 			//        enqueue(v)
 			//   queue.dequeue()
 			//   color[u] = black
-
-			
+			foreach (var node in Nodes)
+			{
+				node.Color = Color.White;
+				predecessorDictionary[node] = (null, Nodes.Count + 1);
+			}
+			startingNode.Color = Color.Gray;
+			predecessorDictionary[startingNode] = (null, 0);
+			queue.Enqueue(startingNode);
+			while (queue.Count != 0)
+			{
+				var current = queue.Dequeue();
+				foreach( var neighbor in current.Neighbors)
+                {
+					if( neighbor.Color == Color.White)
+                    {
+						predecessorDictionary[neighbor] = (current, predecessorDictionary[current].dist + 1);
+						neighbor.Color = Color.Gray;
+						queue.Enqueue(neighbor);
+                    }
+                }
+				current.Color = Color.Black;
+            }
 			return predecessorDictionary;
 		}
 
